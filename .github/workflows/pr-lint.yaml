@@ -32,3 +32,5 @@ jobs:
         
       - name: Run Dart analyzer
         uses: zgosalvez/github-actions-analyze-dart@v1
+        with:
+          fail-on-warnings: true
