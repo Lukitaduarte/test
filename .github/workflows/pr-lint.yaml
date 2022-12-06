@@ -19,9 +19,7 @@ jobs:
     steps:
       - name: Checkout branch
         uses: actions/checkout@v3
-
       - name: Install Dart dependencies
         run: dart pub get
-
       - name: Run Dart analyzer
         uses: zgosalvez/github-actions-analyze-dart@v1
