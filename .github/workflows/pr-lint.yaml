@@ -31,7 +31,7 @@ jobs:
         uses: bluefireteam/melos-action@v1
 
       - name: Run Tests
-        run: melos exec -c 6 --fail-fast --diff=main..HEAD -- "flutter test"
+        run: melos exec -c 6 --fail-fast --diff=main... -- "flutter test"
 
       - name: Run Dart analyzer
         uses: zgosalvez/github-actions-analyze-dart@v1
