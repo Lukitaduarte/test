@@ -45,7 +45,7 @@ jobs:
         run: melos exec -- "\$MELOS_ROOT_PATH/tools/combine_coverage.sh"
 
       - name: Coverage Diff
-        uses: Nef10/lcov-reporter-action@v0.3.0
+        uses: Nef10/lcov-reporter-action@v0.4.0
         with:
           lcov-file: coverage_report/lcov.info
           github-token: ${{ secrets.GITHUB_TOKEN }}
