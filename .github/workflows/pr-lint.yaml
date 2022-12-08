@@ -16,6 +16,7 @@ jobs:
     name: Test & Lint Check
     runs-on: ubuntu-20.04
     timeout-minutes: 30
+    
     steps:
       - name: Checkout branch
         uses: actions/checkout@v3
@@ -35,7 +36,18 @@ jobs:
       - name: Run Tests
         run: melos exec -c 6 --fail-fast --diff=origin/main...HEAD "flutter test --no-pub"
 
-      - name: Run Dart analyzer
+      - name: Run Analyzer
         uses: zgosalvez/github-actions-analyze-dart@v1
         with:
           fail-on-warnings: true
+          
+      - name: Generate Coverage
+        run: melos exec --dir-exists="test" -- flutter test --no-pub --coverage && melos exec -- "\$MELOS_ROOT_PATH/tools/combine_coverage.sh" && python3 tools/lcov_cobertura.py coverage_report/lcov.info -o coverage_report/coverage.xml
+
+      - name: Coverage Diff
+        uses: ewjoachim/coverage-comment-action@v1
+        with:
+          GITHUB_TOKEN: ${{ github.token }}
+          COVERAGE_FILE: "coverage_report/coverage.xml"
+          MINIMUM_GREEN: 70
+          MINIMUM_ORANGE: 50
