@@ -34,7 +34,7 @@ jobs:
         uses: bluefireteam/melos-action@v1
 
       - name: Run Tests
-        run: melos exec -c 6 --fail-fast --diff=origin/main...HEAD "flutter test --no-pub"
+        run: melos exec -c 6 --fail-fast --diff=origin/main...HEAD "flutter test --no-pub --coverage"
 
       - name: Run Analyzer
         uses: zgosalvez/github-actions-analyze-dart@v1
@@ -42,12 +42,10 @@ jobs:
           fail-on-warnings: true
           
       - name: Generate Coverage
-        run: melos exec --dir-exists="test" -- flutter test --no-pub --coverage && melos exec -- "\$MELOS_ROOT_PATH/tools/combine_coverage.sh" && python3 tools/lcov_cobertura.py coverage_report/lcov.info -o coverage_report/coverage.xml
+        run: melos exec -- "\$MELOS_ROOT_PATH/tools/combine_coverage.sh"
 
       - name: Coverage Diff
-        uses: ewjoachim/coverage-comment-action@v1
+        uses: Nef10/lcov-reporter-action@v0.3.0
         with:
-          GITHUB_TOKEN: ${{ github.token }}
-          COVERAGE_FILE: "coverage_report/coverage.xml"
-          MINIMUM_GREEN: 70
-          MINIMUM_ORANGE: 50
+          lcov-file: coverage_report/lcov.info
+          pr-number: 1
