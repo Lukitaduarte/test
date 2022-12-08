@@ -34,7 +34,7 @@ jobs:
         uses: bluefireteam/melos-action@v1
 
       - name: Run Tests
-        run: melos exec -c 6 --fail-fast --diff=origin/main...HEAD "flutter test --no-pub --coverage"
+        run: melos exec -c 6 --dir-exists="test" --fail-fast --diff=origin/main...HEAD "flutter test --no-pub --coverage"
 
       - name: Run Analyzer
         uses: zgosalvez/github-actions-analyze-dart@v1
