@@ -40,7 +40,7 @@ jobs:
         uses: dorny/test-reporter@v1
         if: success() || failure()
         with:
-          name: test-results
+          name: Test Results
           path: "**/test-results.json"
           reporter: flutter-json
           token: ${{ secrets.GITHUB_TOKEN }}
