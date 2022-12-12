@@ -34,7 +34,7 @@ jobs:
         uses: bluefireteam/melos-action@v1
         
       - name: Setup Env
-        run: cat > .env <<EOF "${{secrets.ENV}}" EOF && echo .env
+        run: echo ${{secrets.ENV}} > .env && cat > .env
 
       - name: Run Tests
         run: melos exec -c 6 --dir-exists="test" --diff=origin/main...HEAD "flutter test --no-pub --coverage --machine > test-results.json"
