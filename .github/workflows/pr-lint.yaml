@@ -1,27 +1,74 @@
-name: [PR] Lint
+name: Pull Request Flow
 
 # triggers
 on:
   pull_request:
-    types: [edited, synchronize, reopened, opened]
+    types: [ edited, synchronize, reopened, opened ]
     branches:
-      - develop
+      - main
 
 concurrency:
   group: ${{ github.head_ref }}
   cancel-in-progress: true
 
 jobs:
-  pr-lint-check:
-    name: Lint Check
+  pr-check:
+    name: Test & Lint Check
     runs-on: ubuntu-20.04
     timeout-minutes: 30
+    
     steps:
       - name: Checkout branch
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
-      - name: Install Dart dependencies
-        run: dart pub get
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+          cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:' # optional, change this to force refresh cache
+          cache-path: '${{ runner.tool_cache }}/flutter/:channel:-:version:-:arch:' # optional, change this to specify the cache path
 
-      - name: Run Dart analyzer
+      - name: Install Melos (monorepo cli)
+        uses: bluefireteam/melos-action@v1
+        
+      - name: Setup Env
+        run: echo "${{ secrets.ENV }}" > .env
+
+      - name: Run Tests
+        run: melos exec -c 6 --dir-exists="test" --diff=origin/main...HEAD "flutter test --no-pub --coverage --machine > test-results.json"
+
+      - name: Test Report
+        uses: dorny/test-reporter@v1
+        if: success() || failure()
+        with:
+          name: Test Results
+          path: "**/test-results.json"
+          reporter: flutter-json
+          token: ${{ secrets.GITHUB_TOKEN }}
+          max-annotations: '20'
+
+      - name: Run Analyzer
         uses: zgosalvez/github-actions-analyze-dart@v1
+        with:
+          fail-on-warnings: true
+          
+      - name: Generate Coverage
+        run: melos exec -- "\$MELOS_ROOT_PATH/tools/combine_coverage.sh"
+
+      - name: Coverage Diff
+        uses: romeovs/lcov-reporter-action@v0.3.1
+        with:
+          lcov-file: coverage_report/lcov.info
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          pr-number: ${{ github.event.number }}
+          delete-old-comments: true
+          title: Cobertura total das modificações
+      
+      # - name: Coverage Report
+      #   uses: zgosalvez/github-actions-report-lcov@v2
+      #   with:
+      #     coverage-files: "**/coverage/lcov.info"
+      #     artifact-name: ""
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
